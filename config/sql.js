@@ -1,14 +1,14 @@
-const { Sequelize } = require('sequelize')
+const { Sequelize } = require('sequelize');
 require('dotenv').config();
 
-const sequelize = new Sequelize(
-    process.env.SQL_DB,
-    process.env.SQL_USER,
-    process.env.SQL_PASSWORD,
-    {
-        host: process.env.SQL_HOST,
-        dialect: process.env.SQL_DIALECT
+
+const sequelize = new Sequelize(process.env.DATABASE_URL, {
+    dialect: process.env.SQL_DIALECT,
+    protocol: process.env.SQL_DIALECT,
+    logging: false,
+    dialectOptions: {
+        ssl: process.env.SQL_SSL === 'true' ? { require: true, rejectUnauthorized: false } : false
     }
-);
+});
 
 module.exports = sequelize;
