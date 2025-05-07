@@ -1,9 +1,10 @@
-const express = require('express')
+const express = require('express');
+const isAuthenticated = require('../middlewares/auth');
+const getAllOrders = require('../controllers/OrderController');
 const router = express.Router();
 
-router.post("/order")
-router.get("/order")
-router.get("/order/:id")
+router.get("/", isAuthenticated, getAllOrders)
+
 
 
 module.exports = router;

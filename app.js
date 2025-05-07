@@ -8,6 +8,7 @@ const PORT = process.env.PORT;
 const authRoutes = require('./routes/authRoutes')
 const productRoutes = require('./routes/productRoutes')
 const cartRoutes = require('./routes/cartRoutes')
+const orderRoutes = require('./routes/orderRoutes')
 
 
 const sequelize = require('./config/sql');
@@ -16,6 +17,7 @@ const mongo = require('./config/mongo')
 app.use('/api/auth/', authRoutes)
 app.use('/api/products/', productRoutes)
 app.use('/api/carts/', cartRoutes)
+app.use('/api/orders/', orderRoutes)
 
 
 sequelize.sync();

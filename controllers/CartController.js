@@ -1,5 +1,7 @@
 const Cart = require('../models/mongo/Cart');
 const Product = require('../models/mongo/Product');
+const Order = require('../models/sql/Order');
+const OrderItem = require('../models/sql/OrderItem');
 const User = require('../models/sql/User');
 
 const addToCart = async (req, res) => {
@@ -86,4 +88,46 @@ const removeItemFromCart = async (req, res) => {
     }
 };
 
-module.exports = { addToCart, getUserCart, removeItemFromCart };
+const checkout = async (req, res) => {
+    try {
+        const userId = req.user.userId;
+
+
+        const cart = await Cart.findOne({ userId }).populate('items.productId');
+
+        if (!cart || cart.items.length === 0) {
+            return res.status(400).json({ message: 'Your cart is empty' });
+        }
+
+
+        const totalAmount = cart.items.reduce((total, item) => total + item.productId.price * item.quantity, 0);
+
+
+        const order = await Order.create({
+            userId,
+            totalAmount
+        });
+
+        const orderItems = cart.items.map(item => ({
+            orderId: order.id,
+            productId: item.productId._id.toString(),
+            quantity: item.quantity
+        }));
+
+        await OrderItem.bulkCreate(orderItems);
+
+        cart.items = [];
+        await cart.save();
+
+        res.status(200).json({
+            message: 'Checkout successful!',
+            orderId: order.id,
+            totalAmount
+        });
+    } catch (error) {
+        console.error('Checkout Error:', error);
+        res.status(500).json({ message: 'Server Error' });
+    }
+};
+
+module.exports = { addToCart, getUserCart, removeItemFromCart, checkout };
