@@ -60,4 +60,30 @@ const getUserCart = async (req, res) => {
         res.status(500).json({ message: 'Server Error' });
     }
 }
-module.exports = { addToCart, getUserCart };
+
+const removeItemFromCart = async (req, res) => {
+    try {
+        const productId = req.params.id;
+        const userId = req.user.userId
+
+        const cart = await Cart.findOne({ userId });
+
+        if (!cart) {
+            return res.status(404).json({ message: 'Cart not found' });
+        }
+
+        cart.items = cart.items.filter(item => item.productId.toString() !== productId);
+
+        await cart.save();
+
+        res.status(200).json({
+            message: 'Item removed successfully',
+            data: cart,
+        });
+    } catch (err) {
+        console.error('Error removing item from cart:', err);
+        res.status(500).json({ message: 'Server Error' });
+    }
+};
+
+module.exports = { addToCart, getUserCart, removeItemFromCart };
