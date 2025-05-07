@@ -42,5 +42,22 @@ const addToCart = async (req, res) => {
         res.status(500).json({ message: 'Server Error' });
     }
 };
+const getUserCart = async (req, res) => {
+    try {
+        const userId = req.user.userId
 
-module.exports = { addToCart };
+        const cart = await Cart.findOne({ userId }).populate('items.productId');
+
+        if (!cart) {
+            return res.status(404).json({ message: 'Cart not found' });
+        }
+
+        res.status(200).json({
+            data: cart,
+        });
+    } catch (err) {
+        console.error('Fetch Cart Error:', err);
+        res.status(500).json({ message: 'Server Error' });
+    }
+}
+module.exports = { addToCart, getUserCart };
